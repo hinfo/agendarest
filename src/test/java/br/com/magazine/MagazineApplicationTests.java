@@ -12,6 +12,7 @@ public class MagazineApplicationTests {
 	@Test
 	public void contextLoads() {
 	}
+	
 
 }
 

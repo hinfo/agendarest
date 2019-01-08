@@ -12,15 +12,15 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name="TB_AGENDAMENTO")
+@Table(name="TB_EVENTO")
 @Data
-public class Agenda implements Serializable{
+public class Evento implements Serializable{
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;
 	private String title;
-	String sala;
+	String salaNumero;
 	@Column(name = "data_inicio")
 	String dataIncio;
 	@Column(name="data_fim")
