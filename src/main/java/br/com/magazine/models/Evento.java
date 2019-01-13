@@ -22,7 +22,7 @@ public class Evento implements Serializable{
 	private String title;
 	String salaNumero;
 	@Column(name = "data_inicio")
-	String dataIncio;
+	String dataInicio;
 	@Column(name="data_fim")
 	String dataFim;
 			

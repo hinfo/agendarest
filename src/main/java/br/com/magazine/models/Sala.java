@@ -20,6 +20,7 @@ public class Sala implements Serializable{
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private long id;
 	private String numero;
-	private Boolean isReservado;
+	private Boolean reservado;
+	
 	
 }

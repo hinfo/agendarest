@@ -12,6 +12,6 @@ public interface SalaRepository extends JpaRepository<Sala, Long>{
 	
 	public List<Sala> findAll();
 	
-	@Query("select s from sala s where numero = :numero")
+	@Query("select s from Sala s where numero = :numero")
 	public Sala findByNumero(@Param("numero")String numero);
 }
