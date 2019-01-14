@@ -1,30 +1,27 @@
-<hr>
+
 <h1>Projeto Luiza Labs</h1>
-<hr>
-
-
 <h2>Desenvolvimento API REST para realizar agendamentos</h2>
-
-<h3>Requerimentos de Ambiente do Sistema:</h3>
+<h3>Requerimentos de Ambiente:</h3>
     <ul>
      <li>Java 8 ou superior</li>
      <li>SpringBoot 2.1 ou superior</li>
-     <ul><p>Banco de Dados PostgreSQL</p>
-        <li>Descrição do banco de dados no arquivo src/main/resources/application.properties.</li>
-     </ul>
+     <li>Banco de Dados PostgreSQL</li>
+        <ul>
+        	<li>Descrição do banco de dados no arquivo src/main/resources/application.properties.</li>
+     	</ul>
      <li>Maven 3.5 ou superior</li>
      <li>Swagger (http://localhost:8080/swagger-ui.html)</li>
-     <ul><p>log4J</p>
-        <li>Diretivas de logger no arquivo src/main/resources/log4j.properties.</li></ul>
-     <li>Demais libs descritas no arquivo pom.xml do projeto.<li>
+     <li>log4J</li>
+        <ul><li>Diretivas de logger no arquivo src/main/resources/log4j.properties.</li></ul>
+     <li>Demais libs descritas no arquivo pom.xml do projeto.</li>
      </ul>
      
-<pre>
-Execução:
+<h3>Execução:</h3>
     - Acessar o diretório raiz do projeto e executar o comando:
-        $ mvn spring-boot:run
+<pre>$ mvn spring-boot:run </pre>
 
-Metodos API:
+<h3>Metodos API:</h3>
+    <pre>
     URL:/api/evento
         metodo: GET
             - Retorna uma lista dos eventos cadastrados.
