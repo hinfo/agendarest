@@ -23,7 +23,7 @@
 Execução:
     - Acessar o diretório raiz do projeto e executar o comando:
         $ mvn spring-boot:run
-</pre>
+
 Metodos API:
     URL:/api/evento
         metodo: GET
@@ -32,12 +32,12 @@ Metodos API:
             - Adiciona um evento.
                 - Request formato json de um evento.
                 - Exemplo:
-                <pre>{
+                {
                     "title": "teste",
                     "salaNumero": "01",
                     "dataInicio": "04-01-2019",
                     "dataFim": "04-01-2019"
-                } </pre>
+                }
         
         
         URL:/api/evento/{id}
@@ -87,3 +87,4 @@ Metodos API:
         URL:/api/sala/{id} 
         metodo: PUT
             - Atualiza dados de uma sala.
+</pre>
