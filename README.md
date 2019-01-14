@@ -5,21 +5,25 @@
 
 <h2>Desenvolvimento API REST para realizar agendamentos</h2>
 
-Requerimentos de Ambiente do Sistema:
-    - Java 8 ou superior
-    - SpringBoot 2.1 ou superior
-    - Banco de Dados PostgreSQL
-        - Descrição do banco de dados no arquivo src/main/resources/application.properties.
-    - Maven 3.5 ou superior
-    - Swagger (http://localhost:8080/swagger-ui.html)
-    - log4J
-        - Diretivas de logger no arquivo src/main/resources/log4j.properties.
-    - Demais libs descritas no arquivo pom.xml do projeto.
-
+<h3>Requerimentos de Ambiente do Sistema:</h3>
+    <ul>
+     <li>Java 8 ou superior</li>
+     <li>SpringBoot 2.1 ou superior</li>
+     <ul><p>Banco de Dados PostgreSQL</p>
+        <li>Descrição do banco de dados no arquivo src/main/resources/application.properties.</li>
+     </ul>
+     <li>Maven 3.5 ou superior</li>
+     <li>Swagger (http://localhost:8080/swagger-ui.html)</li>
+     <ul><p>log4J</p>
+        <li>Diretivas de logger no arquivo src/main/resources/log4j.properties.</li></ul>
+     <li>Demais libs descritas no arquivo pom.xml do projeto.<li>
+     </ul>
+     
+<pre>
 Execução:
     - Acessar o diretório raiz do projeto e executar o comando:
         $ mvn spring-boot:run
-
+</pre>
 Metodos API:
     URL:/api/evento
         metodo: GET
