@@ -16,4 +16,7 @@ public interface EventoRepository extends JpaRepository<Evento, Long>{
 	
 	@Query("select e from Evento e where sala_numero = :numeroSala")
 	public List<Evento> findByNumeroSala(@Param("numeroSala") String numeroSala);
+	
+	@Query("select e from Evento e where data_inicio = :dataInicio")
+	public List<Evento> findByData(@Param("dataInicio") String dataInicio);
 }

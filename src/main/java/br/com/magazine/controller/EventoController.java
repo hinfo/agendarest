@@ -1,13 +1,18 @@
 package br.com.magazine.controller;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.net.Authenticator.RequestorType;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.magazine.models.Evento;
@@ -31,98 +37,127 @@ import io.swagger.annotations.ApiOperation;
 @Api(value = "API REST LuizaLabs")
 @CrossOrigin(origins = "*")
 public class EventoController extends ControllerBase {
-	@Autowired
-	EventoRepository eventoRepository;
+	
+	public static final Logger log = Logger.getLogger(EventoController.class);
 
-	@Autowired
-	SalaRepository salaRepository;
-
-	private static final Logger log = Logger.getLogger(EventoController.class);
-
-	@GetMapping("/evento")
+	@RequestMapping(value = "/evento", method = RequestMethod.GET, produces =MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ApiOperation("Retorna uma lista de eventos.")
-	public ResponseEntity<Iterable<Evento>> listaEvento() {
+	public ResponseEntity<?> listaEvento() {
 		log.debug("Listando evento");
 		List<Evento> eventos = eventoRepository.findAll();
 		return new ResponseEntity<>(eventos, HttpStatus.OK);
 	}
-
-	@GetMapping("/evento/{id}")
-	@ApiOperation("Retorna um único evento.")
-	public ResponseEntity<String> listaEventoUnico(@PathVariable(value = "id") Long id) {
-		log.info("Mostrando um único evento!");
-		if (eventoExiste(id)) {
-			Evento evento = eventoRepository.getOne(id);
-			return new ResponseEntity<>("" + evento, HttpStatus.OK);
+	
+	@RequestMapping(value = "/evento/sala/{numeroSala}", method = RequestMethod.GET, produces =MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ApiOperation("Retorna uma lista de eventos de uma sala.")
+	public ResponseEntity<?> listaEventoSala(@PathVariable("numeroSala") String numeroSala) throws JSONException {
+		log.debug("Listando evento por sala");
+		JSONObject response = new JSONObject();
+		List<Evento> eventos = eventoRepository.findByNumeroSala(numeroSala);
+		if (!eventos.isEmpty()) {
+			return new ResponseEntity<>(eventos, HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>("Evento não existe", HttpStatus.INTERNAL_SERVER_ERROR);
+			response.put(MESSAGE, EVENTO_NAO_ENCONTRADO);
+			return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@RequestMapping(value = "/evento/data/{dataInicio}", method = RequestMethod.GET, produces =MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ApiOperation("Retorna uma lista de eventos de uma data.")
+	public ResponseEntity<?> listaEventoData(@PathVariable("dataInicio") String dataInicio) throws JSONException {
+		log.debug("Listando evento por data");
+		JSONObject response = new JSONObject();
+		List<Evento> eventos = eventoRepository.findByData(dataInicio);
+		if (!eventos.isEmpty()) {
+			return new ResponseEntity<>(eventos, HttpStatus.OK);
+		} else {
+			response.put(MESSAGE, EVENTO_NAO_ENCONTRADO);
+			return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
-	@PostMapping("/evento")
+	@RequestMapping(value = "/evento/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ApiOperation("Retorna um único evento.")
+	public ResponseEntity<?> listaEventoUnico(@PathVariable(value = "id") Long id) throws JSONException {
+		log.info("Mostrando um único evento!");
+		JSONObject response = new JSONObject();
+		if (eventoExiste(id)) {
+			Evento evento = eventoRepository.getOne(id);
+			return new ResponseEntity<>(evento, HttpStatus.OK);
+		} else {
+			response.put(MESSAGE, EVENTO_NAO_ENCONTRADO);
+			return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@RequestMapping(value = "/evento", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ApiOperation("Salva um evento.")
-	public ResponseEntity<String> salvarEvento(@RequestBody Evento evento) {
+	public ResponseEntity<?> salvarEvento(@RequestBody Evento evento) throws JSONException {
 		log.info("Reservando uma sala para o evento " + evento.getTitle());
 		log.info("Data Inicio: " + evento.getDataInicio());
 		log.info("Data Fim: " + evento.getDataFim());
-
-		String response = "";
+		JSONObject response = new JSONObject();
 		if (!salaExiste(evento.getSalaNumero())) {
-			return new ResponseEntity<>("Sala não encontrada!", HttpStatus.INTERNAL_SERVER_ERROR);
+			response.put(MESSAGE, SALA_NAO_ENCONTRADA);
+			return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		List<Evento> eventos = eventos = eventoRepository.findByNumeroSala(evento.getSalaNumero());
+		List<Evento> eventos = eventoRepository.findByNumeroSala(evento.getSalaNumero());
 
 		int qtdEventos = eventos.size();
 
 		if (qtdEventos <= 0) {
-			System.out.println("Sala disponível.");
 			eventoRepository.save(evento);
-			System.out.println("Salvando evento na sala " + evento.getSalaNumero());
-			return new ResponseEntity<String>("Evento salvo!", HttpStatus.OK);
+			response.put(MESSAGE, EVENTO_SALVO);
+			return new ResponseEntity<String>(response.toString(), HttpStatus.OK);
 		}
 
 		if (qtdEventos > 0) {
-			System.out.println("Eventos nesta sala");
 			Boolean eventosIguais = null;
 			// Search for eventos
 			for (Evento evento2 : eventos) {
 				eventosIguais = comparaEvento(evento2, evento);
 			}
 			if (eventosIguais) {
-				response = "A sala está reservada neste periodo!";
+				response.put(MESSAGE, SALA_RESERVADA);
 			} else {
-				System.out.println("Disponível nesta data! Evento pode ser salvo!");
 				eventoRepository.save(evento);
-				return new ResponseEntity<String>("Evento salvo!", HttpStatus.OK);
+				response.put(MESSAGE, EVENTO_SALVO);
+				return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 			}
 		}
-		return new ResponseEntity<String>(response, HttpStatus.OK);
+		return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 	}
 
-	@DeleteMapping("/evento/{id}")
+	@RequestMapping(value = "/evento/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ApiOperation("Deleta um evento.")
-	public ResponseEntity<String> deletaEvento(@PathVariable("id") Long id) {
+	public ResponseEntity<?> deletaEvento(@PathVariable("id") Long id) throws JSONException {
+		JSONObject response = new JSONObject();
 		try {
 			Evento evento = eventoRepository.getOne(id);
 			log.info("Deletando o evento " + evento.getTitle());
 			if (!eventoExiste(id)) {
-				return new ResponseEntity<String>("Evento não encontrado", HttpStatus.INTERNAL_SERVER_ERROR);
+				response.put(MESSAGE, EVENTO_NAO_ENCONTRADO);
+				return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 			} else {
 				Sala sala = salaRepository.findByNumero(evento.getSalaNumero());
 				sala.setReservado(false);
 				eventoRepository.delete(evento);
-				return new ResponseEntity<String>("Evento excluído", HttpStatus.OK);
+				response.put(MESSAGE, EVENTO_REMOVIDO);
+				return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 			}
 		} catch (Exception e) {
-			return new ResponseEntity<String>("Evento não encontrado", HttpStatus.INTERNAL_SERVER_ERROR);
+			response.put(MESSAGE, EVENTO_NAO_ENCONTRADO);
+			return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
 
 	@PutMapping("/evento/{id}")
+	@RequestMapping(value = "/evento/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ApiOperation("Atualiza um evento.")
-	public ResponseEntity<String> atualizaEvento(@PathVariable("id") Long id, @RequestBody Evento evento) {
+	public ResponseEntity<?> atualizaEvento(@PathVariable("id") Long id, @RequestBody Evento evento)
+			throws JSONException {
 
+		JSONObject response = new JSONObject();
 		if (salaExiste(evento.getSalaNumero()) & !salaReservada(evento.getSalaNumero())) {
 
 			try {
@@ -133,91 +168,17 @@ public class EventoController extends ControllerBase {
 				novoEvento.setDataFim(evento.getDataFim());
 				novoEvento.setSalaNumero(evento.getSalaNumero());
 				eventoRepository.save(novoEvento);
-				return new ResponseEntity<String>("Evento atualizado!", HttpStatus.OK);
+				response.put(MESSAGE, EVENTO_ATUALIZADO);
+				return new ResponseEntity<>(response.toString(), HttpStatus.OK);
 
 			} catch (Exception e) {
-				return new ResponseEntity<String>("Evento não encontrado!", HttpStatus.INTERNAL_SERVER_ERROR);
+				response.put(MESSAGE, EVENTO_NAO_ENCONTRADO);
+				return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} else {
-			return new ResponseEntity<String>("Não foi possível atualizar o evento pois a sala informada não existe!",
-					HttpStatus.INTERNAL_SERVER_ERROR);
+			response.put(MESSAGE, ERRO_NAO_ATUALIZADO);
+			return new ResponseEntity<String>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
-
-//	/**
-//	 * Verifica se uma sala está reservada
-//	 * 
-//	 * @param numeroSala
-//	 * @return true or false
-//	 */
-//	private Boolean salaReservada(String numeroSala) {
-//		Boolean reservado = true;
-//		if (salaExiste(numeroSala)) {
-//			Sala sala = salaRepository.findByNumero(numeroSala);
-//			reservado = sala.getReservado();
-//			System.out.println("Sala id: " + sala.getId());
-//		}
-//		System.out.println("Reservada! " + reservado);
-//		return reservado;
-//	}
-//
-//	/**
-//	 * Verifica se a sala existe
-//	 * 
-//	 * @param numeroSala
-//	 * @return true or false
-//	 */
-//	private Boolean salaExiste(String numeroSala) {
-//		Boolean existe = false;
-//		Sala sala = salaRepository.findByNumero(numeroSala);
-//		if (sala != null) {
-//			existe = true;
-//		}
-//		return existe;
-//	}
-//
-//	private Boolean eventoExiste(Long id) {
-//		Boolean existe = false;
-//		Optional<Evento> evt = eventoRepository.findById(id);
-//		if (evt.isPresent()) {
-//			existe = true;
-//		}
-//		return existe;
-//	}
-//
-//	/**
-//	 * Compara as datas de dois eventos, dois eventos não podem estar na mesma sala
-//	 * no mesmo dia(Periodo). Um evento não pode começar enquanto outro estiver
-//	 * terminando
-//	 * 
-//	 * @param evt1
-//	 * @param evt2
-//	 * @return true or false
-//	 */
-//	private Boolean comparaEvento(Evento evt1, Evento evt2) {
-//		Boolean mesmoPeriodo = false;
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//		String inicioEvt1 = evt1.getDataInicio();
-//		String fimEvt1 = evt1.getDataFim();
-//		String inicioEvt2 = evt2.getDataInicio();
-//		String fimEvt2 = evt2.getDataFim();
-//
-//		LocalDate dataIncioEvt1 = LocalDate.parse(inicioEvt1, formatter);
-//		LocalDate dataFimEvt1 = LocalDate.parse(fimEvt1, formatter);
-//		LocalDate dataIncioEvt2 = LocalDate.parse(inicioEvt2, formatter);
-//		LocalDate dataFimEvt2 = LocalDate.parse(fimEvt2, formatter);
-//
-//		if (dataIncioEvt1.isEqual(dataIncioEvt2)) {
-//			mesmoPeriodo = true;
-//		}
-//		if (dataFimEvt1.isEqual(dataFimEvt2) || dataIncioEvt2.isEqual(dataFimEvt1)) {
-//			mesmoPeriodo = true;
-//		}
-//		if (dataIncioEvt2.isAfter(dataIncioEvt1) & dataFimEvt2.isBefore(dataFimEvt1)
-//				|| dataFimEvt1.isEqual(dataIncioEvt2) || dataIncioEvt2.isBefore(dataFimEvt1)) {
-//			mesmoPeriodo = true;
-//		}
-//		return mesmoPeriodo;
-//	}
 }

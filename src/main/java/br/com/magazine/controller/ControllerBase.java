@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import br.com.magazine.models.Evento;
@@ -17,6 +18,19 @@ public class ControllerBase {
 
 	@Autowired
 	SalaRepository salaRepository;
+	
+	public static final String MESSAGE = "message";
+	public static final String EVENTO_SALVO = "Evento salvo com sucesso!";
+	public static final String EVENTO_REMOVIDO = "Evento excluído com sucesso";
+	public static final String EVENTO_NAO_ENCONTRADO = "Evento não encontrado";
+	public static final String EVENTO_ATUALIZADO = "Evento atualizado com sucesso";
+	public static final String ERRO_NAO_ATUALIZADO = "Não foi possível atualizar o evento, sala informada não existe!";
+	public static final String SALA_ADICIONADA = "Sala adicionada com sucesso.";
+	public static final String SALA_REMOVIDA = "Sala deletada com sucesso.";
+	public static final String SALA_ERRO_SALVA = "Sala não adicionada.";
+	public static final String SALA_EXISTE = "Sala já existe.";
+	public static final String SALA_RESERVADA = "Sala reservada.";
+	public static final String SALA_NAO_ENCONTRADA = "Sala não encontrada.";
 	
 	
 	/**
@@ -94,9 +108,7 @@ public class ControllerBase {
 		if (salaExiste(numeroSala)) {
 			Sala sala = salaRepository.findByNumero(numeroSala);
 			reservado = sala.getReservado();
-			System.out.println("Sala id: " + sala.getId());
 		}
-		System.out.println("Reservada! " + reservado);
 		return reservado;
 	}
 	
