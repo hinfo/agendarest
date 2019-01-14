@@ -1,25 +1,15 @@
 package br.com.magazine.controller;
 
-import java.net.Authenticator.RequestorType;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.magazine.models.Evento;
 import br.com.magazine.models.Sala;
-import br.com.magazine.repository.EventoRepository;
-import br.com.magazine.repository.SalaRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -151,7 +139,6 @@ public class EventoController extends ControllerBase {
 
 	}
 
-	@PutMapping("/evento/{id}")
 	@RequestMapping(value = "/evento/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ApiOperation("Atualiza um evento.")
 	public ResponseEntity<?> atualizaEvento(@PathVariable("id") Long id, @RequestBody Evento evento)

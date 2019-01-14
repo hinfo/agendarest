@@ -31,6 +31,8 @@ public class ControllerBase {
 	public static final String SALA_EXISTE = "Sala já existe.";
 	public static final String SALA_RESERVADA = "Sala reservada.";
 	public static final String SALA_NAO_ENCONTRADA = "Sala não encontrada.";
+	public static final String SALA_ATUALIZADA = "Sala atualizada com sucesso.";
+	
 	
 	
 	/**

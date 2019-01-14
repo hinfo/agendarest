@@ -30,7 +30,7 @@ public class SwaggerConfig {
 	
 	private ApiInfo metaInfo() {
 		ApiInfo apiInfo = new ApiInfo(//null, null, null, null, null, null, null);
-				"Magazine Luiza API REST",
+				"Luiza Labs API REST",
 				"API REST para Agendamento de salas.",
 				"1.0",
 				"Terms of Service",

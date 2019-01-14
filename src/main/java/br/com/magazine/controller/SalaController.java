@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +20,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.magazine.models.Sala;
-import br.com.magazine.repository.SalaRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/api")
-@Api(value = "API REST LuizaLabs ")
+@Api(value = "API REST LuizaLabs")
 @CrossOrigin(origins = "*")
 public class SalaController extends ControllerBase {
 
@@ -158,4 +156,33 @@ public class SalaController extends ControllerBase {
 			return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@RequestMapping(value = "/sala/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ApiOperation("Atualiza dados de uma sala.")
+	public ResponseEntity<?> atualizaSala(@PathVariable("id") Long id, @RequestBody Sala sala)
+			throws JSONException {
+
+		JSONObject response = new JSONObject();
+		if (salaExiste(sala.getNumero())) {
+
+			try {
+				log.debug("Atualizando registro de uma sala " +sala.getNumero());
+				Sala newSala = salaRepository.findByNumero(sala.getNumero());
+				newSala.setNumero(sala.getNumero());
+				newSala.setReservado(sala.getReservado());
+				salaRepository.save(newSala);
+				response.put(MESSAGE, SALA_ATUALIZADA);
+				return new ResponseEntity<>(response.toString(), HttpStatus.OK);
+
+			} catch (Exception e) {
+				response.put(MESSAGE, SALA_NAO_ENCONTRADA);
+				return new ResponseEntity<>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		} else {
+			response.put(MESSAGE, ERRO_NAO_ATUALIZADO);
+			return new ResponseEntity<String>(response.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	
 }
